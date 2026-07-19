@@ -1,2 +1,1 @@
-# Codsoft_tasks
-Web Development Internship Projects – Portfolio, Job Board, and E-Commerce Website using HTML, CSS &amp; JavaScript.
+A collection of web development internship projects built using HTML, CSS, and JavaScript Designed with responsive layouts, modern UI, and clean code practices.
