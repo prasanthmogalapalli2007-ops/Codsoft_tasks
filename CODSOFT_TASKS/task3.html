@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1424;
+    --case:#171D33;
+    --case-edge:#232B4D;
+    --screen:#0B1020;
+    --amber:#E3B341;
+    --amber-dim:#8A6A28;
+    --teal:#4FD1C5;
+    --key:#1D2440;
+    --key-hi:#262F55;
+    --text:#E8E6DD;
+    --muted:#7C86A3;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(circle at 50% -10%, #1A2244 0%, var(--bg) 55%);
+    font-family:'Space Grotesk', sans-serif;
+    color:var(--text);
+    padding:40px 16px;
+  }
+
+  .device{
+    width:340px;
+    background:var(--case);
+    border:1px solid var(--case-edge);
+    border-radius:22px;
+    padding:22px;
+    box-shadow:
+      0 30px 60px -20px rgba(0,0,0,.6),
+      inset 0 1px 0 rgba(255,255,255,.03);
+  }
+
+  .brand-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:0 4px 16px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:.08em;
+  }
+  .brand-row .dot{
+    width:7px; height:7px; border-radius:50%;
+    background:var(--amber);
+    display:inline-block; margin-right:6px;
+    box-shadow:0 0 6px var(--amber);
+  }
+
+  .screen{
+    background:var(--screen);
+    border-radius:12px;
+    padding:22px 18px 16px;
+    margin-bottom:18px;
+    border:1px solid #060914;
+    box-shadow:inset 0 2px 10px rgba(0,0,0,.5);
+  }
+  .screen .history{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--amber-dim);
+    min-height:18px;
+    text-align:right;
+    overflow-x:auto;
+    white-space:nowrap;
+    margin-bottom:6px;
+  }
+  .screen .display{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:38px;
+    font-weight:500;
+    color:var(--amber);
+    text-align:right;
+    letter-spacing:.02em;
+    overflow-x:auto;
+    white-space:nowrap;
+    text-shadow:0 0 12px rgba(227,179,65,.35);
+  }
+  .screen .display::-webkit-scrollbar{display:none;}
+
+  .pad{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:10px;
+  }
+
+  button{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:18px;
+    font-weight:500;
+    color:var(--text);
+    background:var(--key);
+    border:none;
+    border-radius:10px;
+    padding:18px 0;
+    cursor:pointer;
+    box-shadow:
+      0 2px 0 0 #0C1024,
+      inset 0 1px 0 rgba(255,255,255,.04);
+    transition:transform .05s ease, box-shadow .05s ease, background .15s ease;
+  }
+  button:hover{background:var(--key-hi);}
+  button:active{
+    transform:translateY(2px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  }
+
+  button.op{
+    color:var(--amber);
+    font-size:20px;
+  }
+  button.fn{
+    color:var(--teal);
+    font-size:15px;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  button.zero{grid-column:span 2;}
+  button.equals{
+    background:var(--amber);
+    color:#0F1424;
+    font-weight:600;
+    box-shadow:
+      0 2px 0 0 #9c791f,
+      inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  button.equals:hover{background:#eec158;}
+  button.equals:active{box-shadow:inset 0 1px 0 rgba(255,255,255,.2);}
+
+  footer{
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--muted);
+    margin-top:16px;
+    letter-spacing:.05em;
+  }
+</style>
+</head>
+<body>
+
+<div class="device">
+  <div class="brand-row">
+    <span><span class="dot"></span>CALC</span>
+    <span>CODSOFT · LVL 1</span>
+  </div>
+
+  <div class="screen">
+    <div class="history" id="history">&nbsp;</div>
+    <div class="display" id="display">0</div>
+  </div>
+
+  <div class="pad">
+    <button class="fn" data-action="clear">AC</button>
+    <button class="fn" data-action="backspace">DEL</button>
+    <button class="fn" data-action="percent">%</button>
+    <button class="op" data-action="operator" data-value="÷">÷</button>
+
+    <button data-action="number" data-value="7">7</button>
+    <button data-action="number" data-value="8">8</button>
+    <button data-action="number" data-value="9">9</button>
+    <button class="op" data-action="operator" data-value="×">×</button>
+
+    <button data-action="number" data-value="4">4</button>
+    <button data-action="number" data-value="5">5</button>
+    <button data-action="number" data-value="6">6</button>
+    <button class="op" data-action="operator" data-value="-">−</button>
+
+    <button data-action="number" data-value="1">1</button>
+    <button data-action="number" data-value="2">2</button>
+    <button data-action="number" data-value="3">3</button>
+    <button class="op" data-action="operator" data-value="+">+</button>
+
+    <button class="zero" data-action="number" data-value="0">0</button>
+    <button data-action="decimal">.</button>
+    <button class="equals" data-action="equals">=</button>
+  </div>
+
+  <footer>keyboard input supported</footer>
+</div>
+
+<script>
+  const displayEl = document.getElementById('display');
+  const historyEl = document.getElementById('history');
+
+  let current = '0';       // value currently being typed / shown
+  let previous = null;     // stored left-hand operand
+  let operator = null;     // pending operator
+  let justEvaluated = false;
+
+  const MAX_DIGITS = 14;
+
+  function updateScreen(){
+    displayEl.textContent = current;
+    historyEl.textContent = previous !== null && operator
+      ? `${formatNum(previous)} ${operator}`
+      : '\u00A0';
+  }
+
+  function formatNum(n){
+    // format numbers for display, trimming floating point noise
+    if (n === null || n === undefined) return '';
+    let str = String(n);
+    if (str.length > MAX_DIGITS) {
+      const num = parseFloat(n);
+      str = num.toPrecision(10).replace(/\.?0+$/, '');
+    }
+    return str;
+  }
+
+  function inputDigit(d){
+    if (justEvaluated) {
+      current = d;
+      justEvaluated = false;
+    } else {
+      current = (current === '0') ? d : current + d;
+    }
+    if (current.replace('-','').replace('.','').length > MAX_DIGITS) return;
+    updateScreen();
+  }
+
+  function inputDecimal(){
+    if (justEvaluated) {
+      current = '0.';
+      justEvaluated = false;
+      updateScreen();
+      return;
+    }
+    if (!current.includes('.')) {
+      current += '.';
+      updateScreen();
+    }
+  }
+
+  function chooseOperator(op){
+    if (operator !== null && !justEvaluated) {
+      evaluate();
+    }
+    previous = parseFloat(current);
+    operator = op;
+    justEvaluated = false;
+    current = '0';
+    updateScreen();
+  }
+
+  function evaluate(){
+    if (operator === null || previous === null) return;
+    const a = previous;
+    const b = parseFloat(current);
+    let result;
+    switch(operator){
+      case '+': result = a + b; break;
+      case '-': result = a - b; break;
+      case '×': result = a * b; break;
+      case '÷': result = b === 0 ? NaN : a / b; break;
+      default: return;
+    }
+    current = isNaN(result) ? 'Error' : formatNum(round(result));
+    previous = null;
+    operator = null;
+    justEvaluated = true;
+    updateScreen();
+  }
+
+  function round(n){
+    return Math.round((n + Number.EPSILON) * 1e10) / 1e10;
+  }
+
+  function clearAll(){
+    current = '0';
+    previous = null;
+    operator = null;
+    justEvaluated = false;
+    updateScreen();
+  }
+
+  function backspace(){
+    if (justEvaluated) { clearAll(); return; }
+    current = current.length > 1 ? current.slice(0, -1) : '0';
+    updateScreen();
+  }
+
+  function percent(){
+    current = formatNum(round(parseFloat(current) / 100));
+    updateScreen();
+  }
+
+  document.querySelector('.pad').addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const { action, value } = btn.dataset;
+    switch(action){
+      case 'number': inputDigit(value); break;
+      case 'decimal': inputDecimal(); break;
+      case 'operator': chooseOperator(value); break;
+      case 'equals': evaluate(); break;
+      case 'clear': clearAll(); break;
+      case 'backspace': backspace(); break;
+      case 'percent': percent(); break;
+    }
+  });
+
+  // Keyboard support
+  window.addEventListener('keydown', (e) => {
+    if (e.key >= '0' && e.key <= '9') inputDigit(e.key);
+    else if (e.key === '.') inputDecimal();
+    else if (e.key === '+') chooseOperator('+');
+    else if (e.key === '-') chooseOperator('-');
+    else if (e.key === '*') chooseOperator('×');
+    else if (e.key === '/') { e.preventDefault(); chooseOperator('÷'); }
+    else if (e.key === 'Enter' || e.key === '=') evaluate();
+    else if (e.key === 'Backspace') backspace();
+    else if (e.key === 'Escape') clearAll();
+    else if (e.key === '%') percent();
+  });
+
+  updateScreen();
+</script>
+
+</body>
+</html>
